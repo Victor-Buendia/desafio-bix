@@ -17,6 +17,8 @@ x-airflow-common:
     AIRFLOW__SCHEDULER__DAG_DIR_LIST_INTERVAL: '5'
     AIRFLOW__WEBSERVER__AUTO_REFRESH_INTERVAL: '5'
     _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
+    AIRFLOW__CORE__LAZY_LOAD_PLUGINS: 'true'
+    AIRFLOW_UID: 50000
   volumes:
     - ./${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ./${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -93,7 +95,7 @@ services:
         condition: service_completed_successfully
     volumes:
       - ./config/airflow.cfg:/usr/local/airflow/airflow.cfg
-      - ./plugins/scripts:/opt/airflow/plugins
+      - ./plugins/scripts:/opt/airflow/plugins/scripts
 
   airflow-scheduler:
     <<: *airflow-common
