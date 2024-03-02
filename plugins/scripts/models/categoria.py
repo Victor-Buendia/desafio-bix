@@ -3,8 +3,8 @@ from connector import Base
 
 class Categoria(Base):
 	__tablename__ = 'categorias'
-	extend_existing=True
-
+	__table_args__ = {'extend_existing': True}
+	
 	id = Column(Integer, primary_key=True)
 	nome_categoria = Column(String)
 

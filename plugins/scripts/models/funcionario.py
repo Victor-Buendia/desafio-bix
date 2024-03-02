@@ -3,8 +3,8 @@ from connector import Base
 
 class Funcionario(Base):
 	__tablename__ = 'funcionarios'
-	extend_existing=True
-
+	__table_args__ = {'extend_existing': True}
+	
 	id_funcionario = Column(Integer, primary_key=True)
 	nome = Column(String)
 

@@ -31,6 +31,19 @@ x-airflow-common:
       condition: service_healthy
 
 services:
+  banco:
+      container_name: db
+      image: postgres
+      restart: unless-stopped
+      environment:
+        POSTGRES_USER: bix
+        POSTGRES_PASSWORD: tech
+        POSTGRES_DB: vendas
+      ports:
+        - "5500:5432"
+      volumes:
+        - ./postgres_data:/var/lib/postgresql/data
+
   postgres:
     container_name: airflow-postgres
     image: postgres:13
@@ -65,6 +78,8 @@ services:
     command: webserver
     ports:
       - "8080:8080"
+    links:
+      - banco
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
       interval: 30s
@@ -223,19 +238,6 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-
-  banco:
-      container_name: db
-      image: postgres
-      restart: unless-stopped
-      environment:
-        POSTGRES_USER: bix
-        POSTGRES_PASSWORD: tech
-        POSTGRES_DB: vendas
-      ports:
-        - "5500:5432"
-      volumes:
-        - ./postgres_data:/var/lib/postgresql/data
 
 volumes:
   postgres-db-volume:
