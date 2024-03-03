@@ -1,5 +1,6 @@
 from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError, OperationalError
+import os
 
 from connector import DbConnector, Base
 from api import retrieve_employees, retrieve_categories
@@ -9,8 +10,14 @@ from models.funcionario import Funcionario
 from models.categoria import Categoria
 
 def main():
-	local_psql = DbConnector(user='bix',pswd='tech',host='localhost',port='5500',db='vendas')
-	bix_psql = DbConnector(user='',pswd='',host='',port='5432',db='postgres')
+	local_psql = DbConnector(user='bix',pswd='tech',host='banco',port='5432',db='vendas')
+	bix_psql = DbConnector(
+		host=os.environ.get('BIX_DB_HOST'),
+		port=os.environ.get('BIX_DB_PORT'),
+		user=os.environ.get('BIX_DB_USER'),
+		pswd=os.environ.get('BIX_DB_PASS'),
+		db=os.environ.get('BIX_DB_NAME')
+	)
 
 	local_psql.create_tables()
 
