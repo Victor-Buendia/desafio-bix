@@ -2,7 +2,7 @@ from sqlalchemy import Column, Integer, String, Date
 from connector import Base
 
 class Venda(Base):
-	__tablename__ = 'vendas'
+	__tablename__ = 'venda'
 	__table_args__ = {'extend_existing': True}
 	
 	id_venda = Column(Integer, primary_key=True)
