@@ -18,7 +18,7 @@ with DAG(
 		"retry_delay": timedelta(minutes=1),
 	},
 	description="Realiza a ingestão dos dados das vendas, funcionários e categorias.",
-	schedule='*/1 * * * *',
+	schedule='0 0 * * *',
 	start_date=datetime(2024,3,1),
 	catchup=False,
 	tags=["bix"],
