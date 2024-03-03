@@ -24,13 +24,17 @@ x-airflow-common:
     BIX_DB_PASS: ${BIX_DB_PASS}
     BIX_DB_PORT: ${BIX_DB_PORT}
     BIX_DB_NAME: ${BIX_DB_NAME}
+    DOCKER_DB_HOST: ${DOCKER_DB_HOST}
+    DOCKER_DB_PORT: ${DOCKER_DB_PORT}
     BIX_ENDPOINT_FUNCIONARIOS: ${BIX_ENDPOINT_FUNCIONARIOS}
     BIX_ENDPOINT_CATEGORIAS: ${BIX_ENDPOINT_CATEGORIAS}
+    PYTHONPATH: /opt/airflow/scripts
   volumes:
     - ./${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ./${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
     - ./${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ./${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
+    - ./scripts:/opt/airflow/scripts
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -102,7 +106,6 @@ services:
         condition: service_completed_successfully
     volumes:
       - ./config/airflow.cfg:/usr/local/airflow/airflow.cfg
-      - ./plugins/scripts:/opt/airflow/plugins/scripts
 
   airflow-scheduler:
     <<: *airflow-common
