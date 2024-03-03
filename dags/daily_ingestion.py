@@ -5,10 +5,7 @@ from datetime import timedelta,datetime
 from airflow.decorators import dag, task
 import airflow
 
-import sys
-sys.path.append("/opt/airflow/plugins/")
-sys.path.append("/opt/airflow/plugins/scripts")
-from scripts.ingest import main
+from pipeline import Main
 
 with DAG(
 	dag_id="ingestao-vendas",
@@ -52,7 +49,8 @@ with DAG(
 
 	@task(task_id="daily_batch_ingestion")
 	def ingest():
-		main()
+		main = Main()
+		main.start()
 
 	daily_batch_ingestion = ingest()
 
