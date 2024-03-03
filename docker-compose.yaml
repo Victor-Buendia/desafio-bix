@@ -2,7 +2,8 @@ version: '3.8'
 
 x-airflow-common:
   &airflow-common
-  image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.8.2}
+  # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.8.2}
+  build: .
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -29,6 +30,8 @@ x-airflow-common:
     BIX_ENDPOINT_FUNCIONARIOS: ${BIX_ENDPOINT_FUNCIONARIOS}
     BIX_ENDPOINT_CATEGORIAS: ${BIX_ENDPOINT_CATEGORIAS}
     PYTHONPATH: /opt/airflow/scripts
+    AIRFLOW__CORE__ENABLE_XCOM_PICKLING: 'true'
+    AIRFLOW__CORE__DONOT_PICKLE: 'false'
   volumes:
     - ./${AIRFLOW_PROJ_DIR:-.}/dags:/opt/airflow/dags
     - ./${AIRFLOW_PROJ_DIR:-.}/logs:/opt/airflow/logs
@@ -87,6 +90,7 @@ services:
     restart: always
 
   airflow-webserver:
+    container_name: airflow-webserver
     <<: *airflow-common
     command: webserver
     ports:
@@ -108,6 +112,7 @@ services:
       - ./config/airflow.cfg:/usr/local/airflow/airflow.cfg
 
   airflow-scheduler:
+    container_name: airflow-scheduler
     <<: *airflow-common
     command: scheduler
     healthcheck:
@@ -123,6 +128,7 @@ services:
         condition: service_completed_successfully
 
   airflow-worker:
+    container_name: airflow-worker
     <<: *airflow-common
     command: celery worker
     healthcheck:
@@ -133,6 +139,8 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+    tmpfs:
+      - '/opt/airflow/'
     environment:
       <<: *airflow-common-env
       DUMB_INIT_SETSID: "0"
@@ -143,6 +151,7 @@ services:
         condition: service_completed_successfully
 
   airflow-triggerer:
+    container_name: airflow-triggerer
     <<: *airflow-common
     command: triggerer
     healthcheck:
@@ -158,6 +167,7 @@ services:
         condition: service_completed_successfully
 
   airflow-init:
+    container_name: airflow-init
     <<: *airflow-common
     entrypoint: /bin/bash
     command:
@@ -221,6 +231,7 @@ services:
       - ./${AIRFLOW_PROJ_DIR:-.}:/sources
 
   airflow-cli:
+    container_name: airflow-cli
     <<: *airflow-common
     profiles:
       - debug
@@ -233,6 +244,7 @@ services:
       - airflow
 
   flower:
+    container_name: airflow-flower
     <<: *airflow-common
     command: celery flower
     profiles:

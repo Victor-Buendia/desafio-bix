@@ -2,7 +2,6 @@ from sqlalchemy import text
 import requests
 import os
 
-
 class ApiIngestor():
 	def __init__(self):
 		pass

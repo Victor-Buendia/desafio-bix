@@ -13,7 +13,7 @@ class DbConnector():
             port=port,
             db=db
         )
-        self.__engine = sqlalchemy.create_engine(self.__connection_string, echo=False)
+        self.__engine = sqlalchemy.create_engine(self.__connection_string, echo=True)
     
         Session = sessionmaker(bind=self.__engine)
         self.session = Session()

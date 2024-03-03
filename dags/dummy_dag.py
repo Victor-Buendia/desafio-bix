@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
+from airflow.decorators import dag, task
 import airflow
 
 default_args = {
@@ -32,4 +33,10 @@ task2 = BashOperator(
     dag=dag,
 )
 
-task1 >> task2
+@task
+def print_scheduled_date(execution_date=None):
+    print('dataaaaa: ',execution_date)
+
+date_ = print_scheduled_date()
+
+task1 >> [task2, date_]

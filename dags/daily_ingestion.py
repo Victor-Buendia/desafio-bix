@@ -4,14 +4,15 @@ from airflow.operators.python import PythonOperator
 from datetime import timedelta,datetime
 from airflow.decorators import dag, task
 import airflow
+import os
 
 from pipeline import Main
 
 with DAG(
 	dag_id="ingestao-vendas",
 	default_args={
-		"depends_on_past": False,
 		"retries": 1,
+		"depends_on_past": False,
 		"retry_delay": timedelta(minutes=1),
 	},
 	description="Realiza a ingestão dos dados das vendas, funcionários e categorias.",
@@ -21,38 +22,41 @@ with DAG(
 	tags=["bix"],
 ) as dag:
 
-	# @task(task_id="print_the_context")
-	# def print_context(ds=None, **kwargs):
-	# 	"""Print the Airflow context and ds variable from the context."""
-	# 	pprint(kwargs)
-	# 	print(ds)
-	# 	return "Whatever you return gets printed in the logs"
-
-	# run_this = print_context()
-
-	# @task(task_id="paths")
-	# def get_my_function():
-	# 	import sys
-
-	# 	print("Python Executable Path:", sys.executable)
-	# 	print("Python Version:", sys.version)
-	# 	print("sys.path:", sys.path)
-
-	# 	from scripts.ingest import main
-
-	# paths
-
-	# config_env = BashOperator(
-	# 	task_id="config_env",
-	# 	bash_command="cd /opt/airflow/plugins && pip install -r requirements.txt",
-	# )
-
-	@task(task_id="daily_batch_ingestion")
-	def ingest():
+	@task(task_id="create_tables")
+	def create_tables(**kwargs):
 		main = Main()
-		main.start()
+		main.local_psql.create_tables()
+		main.close_connection()
 
-	daily_batch_ingestion = ingest()
+	@task(task_id="ingest_psql")
+	def ingest_psql(**kwargs):
+		main = Main()
+		bix_psql = main.start(
+			host=os.environ.get('BIX_DB_HOST'),
+			port=os.environ.get('BIX_DB_PORT'),
+			user=os.environ.get('BIX_DB_USER'),
+			pswd=os.environ.get('BIX_DB_PASS'),
+			db=os.environ.get('BIX_DB_NAME')
+		)
+		main.ingest_vendas(db_from=bix_psql,db_to=main.local_psql)
+		main.close_connection(bix_psql)
+		main.close_connection()
 
-	daily_batch_ingestion
-	
+	@task(task_id="ingest_api")
+	def ingest_api(**kwargs):
+		main = Main()
+		main.ingest_funcionarios(db_to=main.local_psql)
+		main.close_connection()
+
+	@task(task_id="ingest_parquet")
+	def ingest_parquet(**kwargs):
+		main = Main()
+		main.ingest_categorias(db_to=main.local_psql)
+		main.close_connection()
+
+	create_tables = create_tables()
+	ingest_psql = ingest_psql()
+	ingest_api = ingest_api()
+	ingest_parquet = ingest_parquet()
+
+	create_tables >> [ingest_psql, ingest_parquet, ingest_api]
