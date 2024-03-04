@@ -14,7 +14,7 @@ with DAG(
 	default_args={
 		"retries": 1,
 		"depends_on_past": False,
-		"retry_delay": timedelta(minutes=1),
+		"retry_delay": timedelta(seconds=10),
 	},
 	description="Realiza a ingestão dos dados das vendas, funcionários e categorias.",
 	schedule='0 0 * * *',

@@ -16,7 +16,7 @@ class Environment():
 		if self.missing_variables != []:
 			raise MissingEnvVariablesException(self.missing_variables)
 		else:
-			self.logger.info(f"All environment variables were successfully loaded")
+			self.logger.info(f"ALL ENVIRONMENT VARIABLES WERE SUCCESSFULLY LOADED")
 
 	def retrieve_env_variables(self):
 		self.BIX_DB_HOST=self.load_env('BIX_DB_HOST')
@@ -31,7 +31,6 @@ class Environment():
 
 	def load_env(self,env_name):
 		variable = os.environ.get(env_name)
-		print(variable)
 		if variable == "":
 			self.missing_variables.append(env_name)
 		else:
