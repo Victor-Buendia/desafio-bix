@@ -7,6 +7,7 @@ import airflow
 import os
 
 from pipeline import Main
+from environment import Environment
 
 with DAG(
 	dag_id="ingestao-vendas",
@@ -21,6 +22,12 @@ with DAG(
 	catchup=False,
 	tags=["bix"],
 ) as dag:
+
+	@task(task_id="check_env_variables")
+	def check_env_vars(**kwargs):
+		env = Environment()
+		env.retrieve_env_variables()
+		env.check_env_variables()
 
 	@task(task_id="create_tables")
 	def create_tables(**kwargs):
@@ -54,9 +61,10 @@ with DAG(
 		main.ingest_categorias(db_to=main.local_psql)
 		main.close_connection()
 
+	check_env_vars = check_env_vars()
 	create_tables = create_tables()
 	ingest_psql = ingest_psql()
 	ingest_api = ingest_api()
 	ingest_parquet = ingest_parquet()
 
-	create_tables >> [ingest_psql, ingest_parquet, ingest_api]
+	check_env_vars >>create_tables >> [ingest_psql, ingest_parquet, ingest_api]
