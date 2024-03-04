@@ -1,10 +1,12 @@
 import os
 import io
+import logging
+
 import pandas as pd
 
-from connector import DbConnector, Base
 from api import ApiIngestor
 from inserter import Inserter
+from connector import DbConnector, Base
 from helper import models_to_dict_list
 
 from models.venda import Venda
@@ -13,8 +15,10 @@ from models.categoria import Categoria
 
 class Main():
 	def __init__(self):
+		self.logger = logging.getLogger(__name__)
 		self.api_ingestor = ApiIngestor()
 		self.inserter = Inserter()
+		self.logger.debug(f"ATTEMPTING TO CONNECT TO DATABASE bix:tech@{os.environ.get('DOCKER_DB_HOST', default='localhost')}:{os.environ.get('DOCKER_DB_PORT', default=5500)}/vendas")
 		self.local_psql = self.start(
 			user='bix',
 			pswd='tech',
@@ -22,6 +26,7 @@ class Main():
 			port=os.environ.get('DOCKER_DB_PORT', default=5500),
 			db='vendas'
 		)
+		self.logger.info(f"SUCCESSFULLY CONNECTED TO DATABASE bix:tech@{os.environ.get('DOCKER_DB_HOST', default='localhost')}:{os.environ.get('DOCKER_DB_PORT', default=5500)}/vendas")
 
 	def start(self,user,pswd,host,port,db):
 		db = DbConnector(user,pswd,host,port,db)
