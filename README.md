@@ -35,11 +35,13 @@ DOCKER_DB_HOST=banco
 DOCKER_DB_PORT=5432
 ```
 
-Se estiver usando Linux, é importante rodar o seguinte comando para que o Airflow tenha permissão sobre os arquivos:
+Se estiver usando Linux, duas variáveis de ambiente serão adicionadas para que o Airflow tenha permissão sobre os arquivos. O comando abaixo já é automaticamente executado.
 
 ```bash
 echo -e "AIRFLOW_UID=$(id -u)\nAIRFLOW_GID=0" > .env
 ```
+
+Todo esse processo já é feito automaticamente usando `make deploy`, mas é possível executá-lo com `make check-env`.
 
 Basta um comando para subir todos os serviços:
 	
@@ -75,34 +77,34 @@ Um resumo de como está organizada a estrutura de pasta pode ser vista abaixo:
 ├── LICENSE
 ├── Makefile
 ├── README.md
-├── config
-│   └── airflow.cfg
-├── dags
-│   ├── daily_ingestion.py
-│   └── dummy_dag.py
-├── docker-compose.yaml
-├── logs
-├── plugins
-├── postgres-db-volume
+├── config                    # AIRFLOW
+│   └── airflow.cfg           # AIRFLOW
+├── dags                      # AIRFLOW
+│   ├── daily_ingestion.py    # AIRFLOW
+│   └── dummy_dag.py          # AIRFLOW
+├── docker-compose.yaml       # AIRFLOW
+├── logs                      # AIRFLOW
+├── plugins                   # AIRFLOW
+├── postgres-db-volume        
 ├── postgres_data
 ├── requirements.txt
-├── scripts
-│   ├── api.py
-│   ├── connector.py
-│   ├── environment.py
-│   ├── helper.py
-│   ├── inserter.py
-│   ├── models
-│   │   ├── categoria.py
-│   │   ├── funcionario.py
-│   │   └── venda.py
-│   └── pipeline.py
+├── scripts                   # CÓDIGO
+│   ├── api.py                # CÓDIGO: Classe para ingerir dados do PostGres e fazer requisição para a API
+│   ├── connector.py          # CÓDIGO: Classe que cria conexão de dados com o PostGres
+│   ├── environment.py        # CÓDIGO: Classe que gerencia as variáveis de ambiente
+│   ├── helper.py             # CÓDIGO: Arquivo com funções para ajudar no processamento de dados
+│   ├── inserter.py           # CÓDIGO: Classe para ingerir os dados no banco de dados destino
+│   ├── models                # CÓDIGO
+│   │   ├── categoria.py      # CÓDIGO: Modelo ORM de uma categoria
+│   │   ├── funcionario.py    # CÓDIGO: Modelo ORM de um funcionário
+│   │   └── venda.py          # CÓDIGO: Modelo ORM de uma venda
+│   └── pipeline.py           # CÓDIGO: Arquivo com o pipeline
 └── .env  
 ```
 
-# Observações
+# Considerações
 
-- Utilização de ORM no SQLAlchemy para padronização
+- Utilização de ORM no SQLAlchemy para padronização.
   - Pressupondo o uso de Data Mesh no qual o time de produto precisa se comprometer de entregar o dado de acordo com a ingestão, e portanto ajudar o time de data com schema evolution.
 - Containerização usando Docker para isolamento de ambientes. Poderia ser evoluído com Kubernetes para gerenciamento dos containers, na qual as instâncias de container seriam efêmeras, apenas para realizar as tasks do Airflow, que funciona apenas como orquestrador.
 - O banco de dados final é um PostGres em um container, mas poderia ser uma ferramenta especializada na Cloud (ex.: RDS), provisionado usando Terraform (IaC), ou também um data warehouse especializado (ex.: Redshift).
