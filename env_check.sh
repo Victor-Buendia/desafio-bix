@@ -1,7 +1,6 @@
 #!/bin/bash
 
 OSTYPE=$(uname)
-echo $OSTYPE
 
 if ! [ -e .env ]; then
 	echo """
@@ -19,6 +18,8 @@ DOCKER_DB_PORT=5432
 	""" > .env
 fi
 
-if ! $(grep -Fq "AIRFLOW_UID" .env) && [ OSTYPE="Linux" ]; then
+if [ $OSTYPE = "Linux" ]; then ISLINUX="True"; else ISLINUX="False"; fi
+
+if ! $(grep -Fq "AIRFLOW_UID" .env) && $ISLINUX; then
 	echo "AIRFLOW_UID=$(id -u)\nAIRFLOW_GID=0" >> .env
 fi
