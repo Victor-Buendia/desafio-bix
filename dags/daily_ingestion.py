@@ -38,12 +38,13 @@ with DAG(
 	@task(task_id="ingest_psql")
 	def ingest_psql(**kwargs):
 		main = Main()
+		env = Environment()
 		bix_psql = main.start(
-			host=os.environ.get('BIX_DB_HOST'),
-			port=os.environ.get('BIX_DB_PORT'),
-			user=os.environ.get('BIX_DB_USER'),
-			pswd=os.environ.get('BIX_DB_PASS'),
-			db=os.environ.get('BIX_DB_NAME')
+			host=env.load_env('BIX_DB_HOST'),
+			port=env.load_env('BIX_DB_PORT'),
+			user=env.load_env('BIX_DB_USER'),
+			pswd=env.load_env('BIX_DB_PASS'),
+			db=env.load_env('BIX_DB_NAME')
 		)
 		main.ingest_vendas(db_from=bix_psql,db_to=main.local_psql)
 		main.close_connection(bix_psql)

@@ -9,6 +9,7 @@ from inserter import Inserter
 from connector import DbConnector, Base
 from helper import models_to_dict_list
 from validator import VendasList, VendaValidator, FuncionariosList, FuncionarioValidator, CategoriasList, CategoriaValidator
+from environment import Environment
 
 from models.venda import Venda
 from models.funcionario import Funcionario
@@ -16,15 +17,16 @@ from models.categoria import Categoria
 
 class Main():
 	def __init__(self):
+		self.env = Environment()
 		self.logger = logging.getLogger(__name__)
 		self.api_ingestor = ApiIngestor(self.logger)
 		self.inserter = Inserter(self.logger)
-		self.logger.debug(f"ATTEMPTING TO CONNECT TO DATABASE bix:tech@{os.environ.get('DOCKER_DB_HOST', default='localhost')}:{os.environ.get('DOCKER_DB_PORT', default=5500)}/vendas")
+		self.logger.debug(f"ATTEMPTING TO CONNECT TO DATABASE bix:tech@{self.env.load_env('DOCKER_DB_HOST', default='localhost')}:{self.env.load_env('DOCKER_DB_PORT', default=5500)}/vendas")
 		self.local_psql = self.start(
 			user='bix',
 			pswd='tech',
-			host=os.environ.get('DOCKER_DB_HOST', default='localhost'),
-			port=os.environ.get('DOCKER_DB_PORT', default=5500),
+			host=self.env.load_env('DOCKER_DB_HOST', default='localhost'),
+			port=self.env.load_env('DOCKER_DB_PORT', default=5500),
 			db='vendas'
 		)
 		self.logger.info(f"SUCCESSFULLY CONNECTED TO DATABASE {self.local_psql.get_address}")
@@ -96,7 +98,7 @@ class Main():
             list: Uma lista contendo os dados recuperados do arquivo Parquet.
         """
 		result = self.api_ingestor.ingest_from_api(
-			api_url=os.environ.get('BIX_ENDPOINT_CATEGORIAS')
+			api_url=self.env.load_env('BIX_ENDPOINT_CATEGORIAS')
 		)
 		categorias = pd.read_parquet(io.BytesIO(result.content))
 		categorias = categorias.to_dict('records')
@@ -133,9 +135,9 @@ class Main():
         """
 		funcionarios = [
 			{
-				'id_funcionario': str(id_funcionario),
+				'id_funcionario': id_funcionario,
 				'nome': self.api_ingestor.ingest_from_api(
-					api_url=os.environ.get('BIX_ENDPOINT_FUNCIONARIOS'),
+					api_url=self.env.load_env('BIX_ENDPOINT_FUNCIONARIOS'),
 					payload={'id': id_funcionario}
 				).text
 			} for id_funcionario in range(1,10)

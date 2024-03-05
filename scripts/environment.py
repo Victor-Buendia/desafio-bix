@@ -53,17 +53,18 @@ class Environment():
 		self.DOCKER_DB_HOST=self.load_env('DOCKER_DB_HOST')
 		self.DOCKER_DB_PORT=self.load_env('DOCKER_DB_PORT')
 
-	def load_env(self,env_name):
+	def load_env(self,env_name,default=None):
 		"""
         Carrega uma variável de ambiente específica.
 
         Argumentos:
             env_name (str): Nome da variável de ambiente a ser carregada.
+			default (str): Valor padrão da variável de ambiente (padrão: None).
 
         Retorna:
             str: O valor da variável de ambiente carregada, se existir.
         """
-		variable = os.environ.get(env_name)
+		variable = os.environ.get(env_name,default=default)
 		if variable == "":
 			self.missing_variables.append(env_name)
 		else:
