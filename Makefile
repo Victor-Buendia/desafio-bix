@@ -7,7 +7,10 @@ help:
 	@echo "***************************************************"
 
 .PHONY: deploy
-deploy: build up
+deploy: os-check build up
+os-check:
+	chmod +x linux_patch.sh
+	sh ./linux_patch.sh
 build:
 	docker-compose down && docker-compose build && docker-compose up -d
 up:
