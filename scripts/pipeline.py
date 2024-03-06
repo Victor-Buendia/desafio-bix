@@ -79,6 +79,7 @@ class Main():
         """
 		categorias = self.ingest_parquet_data(db_to=self.local_psql,Table=Categoria,pk=Categoria.id)
 		categorias = CategoriasList.parse_obj(categorias) # Validation
+		self.logger.info('DATA FROM CATEGORIAS SUCCESSFULLY VALIDATED WITH PYDANTIC')
 		self.inserter.insert_data_into_psql(
 			Table=Categoria,
 			database=db_to,
