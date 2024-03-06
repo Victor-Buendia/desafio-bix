@@ -1,4 +1,6 @@
 from pydantic import BaseModel, validator, PositiveInt, RootModel
+from typing import List
+
 from datetime import date
 
 from api import ApiIngestor
@@ -13,18 +15,18 @@ class VendaValidator(BaseModel):
 	venda: PositiveInt
 
 class VendasList(RootModel):
-	root: list[VendaValidator]
+	root: List[VendaValidator]
 
 class FuncionarioValidator(BaseModel):
 	id_funcionario: PositiveInt
 	nome: str
 
 class FuncionariosList(RootModel):
-	root: list[FuncionarioValidator]
+	root: List[FuncionarioValidator]
 
 class CategoriaValidator(BaseModel):
 	id: PositiveInt
 	nome_categoria: str
 
 class CategoriasList(RootModel):
-	root: list[CategoriaValidator]
+	root: List[CategoriaValidator]
