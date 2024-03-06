@@ -20,6 +20,6 @@ fi
 
 if [ $OSTYPE = "Linux" ]; then ISLINUX="True"; else ISLINUX="False"; fi
 
-if ! $(grep -Fq "AIRFLOW_UID" .env) && $ISLINUX; then
+if ! $(grep -Fq "AIRFLOW_UID" .env) && [ $ISLINUX="True" ]; then
 	echo "AIRFLOW_UID=$(id -u)\nAIRFLOW_GID=0" >> .env
 fi
